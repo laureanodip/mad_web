@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Registrar Venta</title>
+<style>
+    body { background:#0f0f0f; color:#d8c7a3; font-family:'Segoe UI',sans-serif; text-align:center; padding:20px; }
+    h2 { margin-bottom:20px; }
+    form { max-width:400px; margin:auto; background:#1a1a1a; padding:20px; border-radius:10px; }
+    label { display:block; margin-top:10px; }
+    select, input { width:90%; padding:8px; margin-top:5px; border:1px solid #d8c7a3; background:#1c1c1c; color:#d8c7a3; border-radius:5px; }
+    button { margin-top:15px; background:#1c1c1c; color:#d8c7a3; border:2px solid #d8c7a3; border-radius:20px; padding:10px; cursor:pointer; }
+    button:hover { background:#2a2a2a; transform:scale(1.05); }
+</style>
+</head>
+<body>
+
+<h2>🛒 Registrar Venta</h2>
+
+<form id="form-ventas">
+    <label>Producto:</label>
+    <select id="producto" name="producto_id" required>
+        <option value="">Seleccione un producto</option>
+    </select>
+
+    <label>Variable:</label>
+    <select id="variable" name="variable_id" required>
+        <option value="">Seleccione primero un producto</option>
+    </select>
+
+    <label>Cantidad:</label>
+    <input type="number" name="cantidad" required>
+
+    <label>Precio Unitario:</label>
+    <input type="number" name="precio" step="0.01" required>
+
+    <label>Cliente:</label>
+    <input type="text" name="cliente" required>
+
+    <label>Fecha:</label>
+    <input type="date" name="fecha" required>
+
+    <button type="submit">💾 Guardar Venta</button>
+</form>
+
+<script>
+// ✅ Cargar productos al iniciar
+async function cargarProductos() {
+    const res = await fetch('/api/productos');
+    const productos = await res.json();
+    const select = document.getElementById('producto');
+    productos.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.nombre;
+        select.appendChild(opt);
+    });
+}
+
+// ✅ Cargar variables según producto seleccionado
+document.getElementById('producto').addEventListener('change', async (e) => {
+    const productoId = e.target.value;
+    const selectVar = document.getElementById('variable');
+    selectVar.innerHTML = '<option value="">Cargando...</option>';
+    const res = await fetch(`/api/producto/${productoId}`);
+    const data = await res.json();
+    selectVar.innerHTML = '';
+    data.variables.forEach(v => {
+        if (v.cantidad > 0) { // Solo variables con stock
+            const opt = document.createElement('option');
+            opt.value = v.id;
+            opt.textContent = `${v.nombre} (Stock: ${v.cantidad})`;
+            selectVar.appendChild(opt);
+        }
+    });
+});
+
+// ✅ Enviar formulario
+document.getElementById('form-ventas').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = Object.fromEntries(new FormData(e.target).entries());
+    const res = await fetch('/api/ventas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+    });
+    const data = await res.json();
+    alert(data.mensaje);
+    e.target.reset();
+});
+
+// 🚀 Inicializar
+cargarProductos();
+</script>
+
+</body>
+</html>

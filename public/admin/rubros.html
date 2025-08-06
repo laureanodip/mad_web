@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Gestión de Rubros y Subrubros</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    body { background:#0f0f0f; color:#d8c7a3; font-family:'Segoe UI',sans-serif; text-align:center; padding:20px; }
+    h2 { margin-bottom:20px; }
+    section { background:#1c1c1c; padding:15px; border-radius:10px; margin-bottom:20px; max-width:500px; margin:auto; }
+    input, select, button { width:90%; margin-top:5px; padding:8px; border:1px solid #d8c7a3; background:#1a1a1a; color:#d8c7a3; border-radius:5px; }
+    button { border:2px solid #d8c7a3; cursor:pointer; }
+    button:hover { background:#2a2a2a; transform:scale(1.05); }
+    table { width:90%; margin:auto; border-collapse:collapse; background:#1a1a1a; color:#d8c7a3; margin-top:20px; }
+    th, td { border:1px solid #d8c7a3; padding:10px; }
+    th { background:#2a2a2a; }
+</style>
+</head>
+<body>
+<h2>📂 Administración de Rubros y Subrubros</h2>
+<section>
+    <h3>➕ Crear Rubro</h3>
+    <input type="text" id="nuevo-rubro" placeholder="Nombre del rubro">
+    <button onclick="crearRubro()">Guardar Rubro</button>
+</section>
+<section>
+    <h3>➕ Crear Subrubro</h3>
+    <select id="select-rubro"></select>
+    <input type="text" id="nuevo-subrubro" placeholder="Nombre del subrubro">
+    <button onclick="crearSubrubro()">Guardar Subrubro</button>
+</section>
+<section>
+    <h3>📦 Asignar Categoría a Producto</h3>
+    <select id="producto"></select>
+    <select id="asignar-rubro"></select>
+    <select id="asignar-subrubro"></select>
+    <button onclick="asignarCategoria()">Asignar</button>
+</section>
+<h3>Rubros y Subrubros Existentes</h3>
+<table id="tabla-rubros">
+    <thead><tr><th>Rubro</th><th>Subrubros</th></tr></thead>
+    <tbody></tbody>
+</table>
+<script>
+async function cargarRubros() {
+    const res = await fetch('/api/rubros');
+    const rubros = await res.json();
+    const select = document.getElementById('select-rubro');
+    const selectAsignar = document.getElementById('asignar-rubro');
+    select.innerHTML = ''; selectAsignar.innerHTML = '';
+    rubros.forEach(r => {
+        select.innerHTML += `<option value="${r.id}">${r.nombre}</option>`;
+        selectAsignar.innerHTML += `<option value="${r.id}">${r.nombre}</option>`;
+    });
+    renderTablaRubros(rubros);
+}
+async function cargarSubrubros(rubro_id) {
+    const res = await fetch(`/api/subrubros/${rubro_id}`);
+    const data = await res.json();
+    const select = document.getElementById('asignar-subrubro');
+    select.innerHTML = '';
+    data.forEach(s => select.innerHTML += `<option value="${s.id}">${s.nombre}</option>`);
+}
+async function cargarProductos() {
+    const res = await fetch('/api/productos');
+    const productos = await res.json();
+    const select = document.getElementById('producto');
+    select.innerHTML = '';
+    productos.forEach(p => select.innerHTML += `<option value="${p.id}">${p.nombre}</option>`);
+}
+async function crearRubro() {
+    const nombre = document.getElementById('nuevo-rubro').value;
+    await fetch('/api/rubros', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({nombre}) });
+    alert('✅ Rubro creado'); cargarRubros();
+}
+async function crearSubrubro() {
+    const rubro_id = document.getElementById('select-rubro').value;
+    const nombre = document.getElementById('nuevo-subrubro').value;
+    await fetch('/api/subrubros', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({rubro_id, nombre}) });
+    alert('✅ Subrubro creado'); cargarRubros();
+}
+async function asignarCategoria() {
+    const producto = document.getElementById('producto').value;
+    const rubro_id = document.getElementById('asignar-rubro').value;
+    const subrubro_id = document.getElementById('asignar-subrubro').value;
+    await fetch(`/api/producto/${producto}/categoria`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({rubro_id, subrubro_id}) });
+    alert('✅ Categoría asignada');
+}
+async function renderTablaRubros(rubros) {
+    const tbody = document.querySelector('#tabla-rubros tbody');
+    tbody.innerHTML = '';
+    for (const r of rubros) {
+        const subs = await (await fetch(`/api/subrubros/${r.id}`)).json();
+        tbody.innerHTML += `<tr><td>${r.nombre}</td><td>${subs.map(s=>s.nombre).join(', ')}</td></tr>`;
+    }
+}
+document.getElementById('asignar-rubro').addEventListener('change', e => cargarSubrubros(e.target.value));
+cargarRubros(); cargarProductos();
+</script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Inventario - MAD Impo & Finance</title>
+<style>
+    body { background: #0f0f0f; color: #d8c7a3; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
+    h2 { text-align: center; margin-bottom: 20px; color: #d8c7a3; }
+    table { width: 90%; margin: auto; border-collapse: collapse; background: #1a1a1a; color: #d8c7a3; }
+    th, td { border: 1px solid #d8c7a3; padding: 10px; text-align: center; }
+    th { background: #2a2a2a; }
+    input[type="number"] { width: 80px; background: #1c1c1c; border: 1px solid #d8c7a3; color: #d8c7a3; text-align: center; }
+    button { background: #1c1c1c; border: 1px solid #d8c7a3; color: #d8c7a3; padding: 5px 10px; cursor: pointer; border-radius: 6px; }
+    button:hover { background: #2a2a2a; }
+</style>
+</head>
+<body>
+
+<h2>📦 Inventario Actual</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Artículo</th>
+            <th>Stock</th>
+            <th>Precio de Venta (ARS)</th>
+            <th>Monto Total (ARS)</th>
+            <th>Acción</th>
+        </tr>
+    </thead>
+    <tbody id="tabla-inventario"></tbody>
+</table>
+
+<script>
+async function cargarInventario() {
+    const res = await fetch('/api/inventario');
+    const datos = await res.json();
+    const tbody = document.getElementById('tabla-inventario');
+    tbody.innerHTML = '';
+
+    datos.forEach(item => {
+        const fila = document.createElement('tr');
+        fila.innerHTML = `
+            <td>${item.articulo}</td>
+            <td>${item.stock}</td>
+            <td><input type="number" value="${item.precio_venta}" step="0.01" id="precio_${item.variable_id}"></td>
+            <td>${item.monto_total.toFixed(2)}</td>
+            <td><button onclick="actualizarPrecio(${item.variable_id})">💾 Guardar</button></td>
+        `;
+        tbody.appendChild(fila);
+    });
+}
+
+async function actualizarPrecio(id) {
+    const nuevoPrecio = document.getElementById(`precio_${id}`).value;
+    const res = await fetch(`/api/variable/${id}/precio`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ precio_venta: nuevoPrecio })
+    });
+    const data = await res.json();
+    alert(data.mensaje);
+    cargarInventario();
+}
+
+// 🚀 Cargar datos al iniciar
+cargarInventario();
+</script>
+
+</body>
+</html>

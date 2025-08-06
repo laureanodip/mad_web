@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Producto - MAD Ecommerce</title>
+<style>
+    body { background: #0f0f0f; color: #d8c7a3; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 20px; }
+    img { max-width: 300px; border-radius: 10px; margin-bottom: 15px; }
+    .variables { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+    .var { background: #1c1c1c; border: 1px solid #d8c7a3; border-radius: 8px; padding: 10px; width: 150px; transition: 0.3s; }
+    .var:hover { transform: scale(1.05); cursor: pointer; }
+    .var img { width: 100%; border-radius: 5px; }
+</style>
+</head>
+<body>
+
+<h1 id="nombre"></h1>
+<img id="imagen_producto" src="">
+<h2>Opciones disponibles</h2>
+<div id="variables" class="variables"></div>
+
+<script>
+async function cargarProducto() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+
+    const res = await fetch(`/api/producto/${id}`);
+    const data = await res.json();
+
+    document.getElementById('nombre').innerText = data.producto.nombre;
+    document.getElementById('imagen_producto').src = data.producto.imagen_producto || '/uploads/default.jpg';
+
+    const cont = document.getElementById('variables');
+    cont.innerHTML = '';
+
+    data.variables.forEach(v => {
+        const div = document.createElement('div');
+        div.className = 'var';
+        div.innerHTML = `
+            ${v.imagen_variable ? `<img src="${v.imagen_variable}">` : ''}
+            <p>${v.nombre}</p>
+            <small>Stock: ${v.cantidad}</small>
+        `;
+        cont.appendChild(div);
+    });
+}
+cargarProducto();
+</script>
+
+</body>
+</html>

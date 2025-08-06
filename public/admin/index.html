@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Panel de Administración</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    body { background:#0f0f0f; color:#d8c7a3; font-family:'Segoe UI',sans-serif; text-align:center; padding:20px; }
+    h1 { font-size:32px; margin-bottom:5px; }
+    h3 { font-size:18px; margin-bottom:30px; }
+    .btn-container { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:15px; max-width:400px; margin:auto; }
+    .btn { background:none; border:2px solid #d8c7a3; color:#d8c7a3; padding:15px; border-radius:40px; font-size:16px; cursor:pointer; transition:all .3s; }
+    .btn:hover { background:#2a2a2a; transform:scale(1.05); }
+</style>
+</head>
+<body>
+<h1>MAD</h1>
+<h3>IMPO & FINANCE</h3>
+<div class="btn-container">
+    <button class="btn" onclick="location.href='/admin/compras.html'">🛒 COMPRAS</button>
+    <button class="btn" onclick="location.href='/admin/ventas.html'">💰 VENTAS</button>
+    <button class="btn" onclick="location.href='/admin/inventario.html'">📦 INVENTARIO</button>
+    <button class="btn" onclick="location.href='/admin/resultados.html'">📊 RESULTADOS</button>
+    <button class="btn" onclick="location.href='/admin/rubros.html'">📂 RUBROS</button>
+</div>
+</body>
+</html>

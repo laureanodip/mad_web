@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MAD Ecommerce</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: #fff;
+      border-bottom: 1px solid #ccc;
+    }
+    .logo {
+      height: 50px;
+    }
+    .menu-toggle {
+      font-size: 24px;
+      background: none;
+      border: none;
+    }
+    .menu-content {
+      display: none;
+      position: absolute;
+      top: 60px;
+      right: 20px;
+      background: white;
+      border: 1px solid #ccc;
+      padding: 10px;
+      z-index: 1000;
+    }
+    .product-card {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin: 10px;
+      text-align: center;
+    }
+    .product-card img {
+      max-width: 100%;
+      height: auto;
+      object-fit: contain;
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #f8f8f8;
+    }
+    .carousel-inner img {
+      width: 100%;
+      height: auto;
+      max-height: 745px;
+      object-fit: cover;
+    }
+    .carousel-item {
+      height: auto;
+    }
+    .catalogo {
+      padding: 30px;
+      text-align: center;
+    }
+    .variable-list {
+      display: none;
+      text-align: left;
+      padding: 10px;
+    }
+    .toggle-variables {
+      cursor: pointer;
+      color: #007bff;
+      text-decoration: underline;
+    }
+    #cart-icon {
+      position: fixed;
+      top: 15px;
+      left: 20px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    #filters {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="/uploads/logo_mad.png" alt="Logo MAD" class="logo">
+    <button class="menu-toggle" onclick="toggleMenu()">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div id="menu-content" class="menu-content">
+      <ul>
+        <li><a href="#" onclick="filtrarRubro('ZAPATOS FEMENINOS')">ZAPATOS FEMENINOS</a></li>
+        <li><a href="#" onclick="filtrarRubro('PRODUCTOS DE MOTO')">PRODUCTOS DE MOTO</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <img src="/uploads/Impo_Finance.png" class="d-block w-100" alt="Carrusel 1">
+      </div>
+      <div class="carousel-item">
+        <img src="/uploads/SEASON SALE.png" class="d-block w-100" alt="Carrusel 2">
+      </div>
+      <div class="carousel-item">
+        <img src="/uploads/PRODUCTOS DE MOTO.png" class="d-block w-100" alt="Carrusel 3">
+      </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
+  </div>
+
+  <div class="text-center my-4">
+    <h2>Somos un emprendimiento familiar que busca hacértela más fácil!</h2>
+    <a class="btn btn-dark m-2" href="https://wa.me/543812150553?text=Hola!%20me%20interesan%20estos%20productos">Comprá</a>
+    <a class="btn btn-outline-dark m-2" href="https://wa.me/543812150553?text=Hola!%20tengo%20una%20consulta">Contacto</a>
+  </div>
+
+  <div id="filters">
+    <select id="filtro-categoria" onchange="filtrar()">
+      <option value="">Todas las categorías</option>
+    </select>
+    <select id="filtro-color" onchange="filtrar()">
+      <option value="">Todos los colores</option>
+    </select>
+    <select id="filtro-talle" onchange="filtrar()">
+      <option value="">Todos los talles</option>
+    </select>
+    <select id="filtro-tipo" onchange="filtrar()">
+      <option value="">Todos los tipos</option>
+    </select>
+  </div>
+
+  <div class="catalogo">
+    <h3>Catálogo</h3>
+    <div class="container">
+      <div id="productos-container" class="row justify-content-center"></div>
+      <div class="text-center mt-4">
+        <button class="btn btn-secondary" onclick="cargarMasProductos()">Cargar más</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 MAD Impos & Finance</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function toggleMenu() {
+      const menu = document.getElementById('menu-content');
+      menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    }
+
+    let offset = 0;
+    const limit = 20;
+    const cart = [];
+
+    function cargarMasProductos() {
+      const categoria = document.getElementById('filtro-categoria').value;
+      const color = document.getElementById('filtro-color').value;
+      const talle = document.getElementById('filtro-talle').value;
+      const tipo = document.getElementById('filtro-tipo').value;
+      const query = `offset=${offset}&limit=${limit}&categoria=${categoria}&color=${color}&talle=${talle}&tipo=${tipo}`;
+
+      fetch(`/api/catalogo?${query}`)
+        .then(res => res.json())
+        .then(productos => {
+          const container = document.getElementById('productos-container');
+          productos.forEach(producto => {
+            const card = document.createElement('div');
+            card.className = 'col-md-3 col-6';
+            const varId = `var-${producto.id}`;
+            card.innerHTML = `
+              <div class="product-card">
+                <img src="${producto.imagen_producto}" alt="${producto.nombre}">
+                <p class="toggle-variables" onclick="toggleVariables('${varId}')">${producto.nombre}</p>
+                <div id="${varId}" class="variable-list">
+                  ${producto.variables.map(v => `
+                    <div>
+                      <span>${v.nombre} - $${v.precio_venta}</span><br/>
+                      <small>Color: ${v.color}, Talle: ${v.talle}, Tipo: ${v.tipo}</small><br/>
+                      <button class="btn btn-sm btn-primary mt-1" onclick="addToCart('${producto.nombre} (${v.nombre})')">Agregar</button>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            `;
+            container.appendChild(card);
+          });
+          offset += limit;
+        });
+    }
+
+    function cargarFiltros() {
+      fetch('/api/filtros')
+        .then(res => res.json())
+        .then(data => {
+          const categorias = document.getElementById('filtro-categoria');
+          const colores = document.getElementById('filtro-color');
+          const talles = document.getElementById('filtro-talle');
+          const tipos = document.getElementById('filtro-tipo');
+
+          data.categorias.forEach(val => {
+            const option = document.createElement('option');
+            option.value = val;
+            option.textContent = val;
+            categorias.appendChild(option);
+          });
+          data.colores.forEach(val => {
+            const option = document.createElement('option');
+            option.value = val;
+            option.textContent = val;
+            colores.appendChild(option);
+          });
+          data.talles.forEach(val => {
+            const option = document.createElement('option');
+            option.value = val;
+            option.textContent = val;
+            talles.appendChild(option);
+          });
+          data.tipos.forEach(val => {
+            const option = document.createElement('option');
+            option.value = val;
+            option.textContent = val;
+            tipos.appendChild(option);
+          });
+        });
+    }
+
+    function toggleVariables(id) {
+      const el = document.getElementById(id);
+      el.style.display = el.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function addToCart(productName) {
+      cart.push(productName);
+      alert(productName + ' agregado al carrito');
+    }
+
+    function filtrar() {
+      offset = 0;
+      document.getElementById('productos-container').innerHTML = '';
+      cargarMasProductos();
+    }
+
+    function filtrarRubro(nombre) {
+      document.getElementById('filtro-categoria').value = nombre;
+      filtrar();
+    }
+
+    window.onload = () => {
+      cargarFiltros();
+      cargarMasProductos();
+    };
+  </script>
+</body>
+</html>

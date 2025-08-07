@@ -7,15 +7,20 @@ const fs = require('fs');
 
 const app = express();
 
+// 🔧 Conexión a MySQL en Railway (NO usar localhost en Render)
 const db = mysql.createConnection({
-  host: 'localhost',
+  host: 'mysql-railway.internal',
   user: 'root',
-  password: '1234',
-  database: 'ecommerce'
+  password: 'mwNDkiWFiTAtSqYhFTpWEIwZfnZkpYT',
+  database: 'railway',
+  port: 3306
 });
 
 db.connect(err => {
-  if (err) throw err;
+  if (err) {
+    console.error('❌ Error al conectar a MySQL:', err.message);
+    process.exit(1); // Detiene el servidor si falla la conexión
+  }
   console.log('✅ Conectado a MySQL');
 });
 
@@ -134,4 +139,9 @@ app.get('/api/filtros', (req, res) => {
   });
 });
 
-app.listen(3000, () => console.log('🚀 Servidor en http://localhost:3000'));
+// ✅ Adaptado para Render (usa el puerto asignado por el sistema)
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`🚀 Servidor corriendo en puerto ${port}`);
+});
+

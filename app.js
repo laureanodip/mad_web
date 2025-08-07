@@ -9,11 +9,11 @@ const app = express();
 
 // 🔧 Conexión a MySQL en Railway (NO usar localhost en Render)
 const db = mysql.createConnection({
-  host: 'mysql-railway.internal',
+  host: 'shortline.proxy.rlwy.net',
   user: 'root',
-  password: 'mwNDkiWFiTAtSqYhFTpWEIwZfnZkpYT',
+  password: 'mwNDkiWIFiTAtSqYhFTpWEIwZfnZkpYT',
   database: 'railway',
-  port: 3306
+  port: 22722
 });
 
 db.connect(err => {

@@ -1,6 +1,6 @@
 // app.js completo actualizado con filtro de rubros desde la tabla correcta
 const express = require('express');
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const path = require('path');
 const multer = require('multer');
 const fs = require('fs');
